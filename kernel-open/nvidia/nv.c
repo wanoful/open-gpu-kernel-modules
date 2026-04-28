@@ -106,6 +106,8 @@
 #define RM_THRESHOLD_UNAHNDLED_IRQ_COUNT 99900
 #define RM_UNHANDLED_TIMEOUT_US          100000
 
+MODULE_DESCRIPTION("NVIDIA core GPU kernel module");
+
 const NvBool nv_is_rm_firmware_supported_os = NV_TRUE;
 
 // Deprecated, use NV_REG_ENABLE_GPU_FIRMWARE instead
@@ -2723,6 +2725,12 @@ nvidia_ctl_close(
     up(&nvl->ldata_lock);
 
     rm_cleanup_file_private(sp, nv, &nvlfp->nvfp);
+
+    if (nvlfp->mmap_context.alloc != NULL && nvlfp->mmap_context.valid)
+    {
+        nv_alloc_t *at = nvlfp->mmap_context.alloc;
+        nv_alloc_release(nvlfp, at);
+    }
 
     if (nvlfp->free_list != NULL)
     {

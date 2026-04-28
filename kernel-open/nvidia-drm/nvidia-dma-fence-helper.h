@@ -93,7 +93,8 @@ static inline int nv_dma_fence_signal(nv_dma_fence_t *fence) {
 #if defined(NV_LINUX_FENCE_H_PRESENT)
     return fence_signal(fence);
 #else
-    return dma_fence_signal(fence);
+    dma_fence_signal(fence);
+    return 0;
 #endif
 }
 

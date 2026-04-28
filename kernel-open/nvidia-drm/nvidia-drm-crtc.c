@@ -497,7 +497,7 @@ static int __nv_drm_cursor_atomic_check(struct drm_plane *plane,
 
     WARN_ON(nv_plane->layer_idx != NVKMS_KAPI_LAYER_INVALID_IDX);
 
-    nv_drm_for_each_crtc_in_state(plane_state->state, crtc, crtc_state, i) {
+    nv_drm_for_each_new_crtc_in_state(plane_state->state, crtc, crtc_state, i) {
         struct nv_drm_crtc_state *nv_crtc_state = to_nv_crtc_state(crtc_state);
         struct NvKmsKapiHeadRequestedConfig *head_req_config =
             &nv_crtc_state->req_config;
@@ -543,7 +543,7 @@ static int nv_drm_plane_atomic_check(struct drm_plane *plane,
 
     WARN_ON(nv_plane->layer_idx == NVKMS_KAPI_LAYER_INVALID_IDX);
 
-    nv_drm_for_each_crtc_in_state(plane_state->state, crtc, crtc_state, i) {
+    nv_drm_for_each_new_crtc_in_state(plane_state->state, crtc, crtc_state, i) {
         struct nv_drm_crtc_state *nv_crtc_state = to_nv_crtc_state(crtc_state);
         struct NvKmsKapiHeadRequestedConfig *head_req_config =
             &nv_crtc_state->req_config;
@@ -692,9 +692,11 @@ static inline void __nv_drm_plane_atomic_destroy_state(
 #endif
 
 #if defined(NV_DRM_HAS_HDR_OUTPUT_METADATA)
-    struct nv_drm_plane_state *nv_drm_plane_state =
-        to_nv_drm_plane_state(state);
-    drm_property_blob_put(nv_drm_plane_state->hdr_output_metadata);
+    {
+        struct nv_drm_plane_state *nv_drm_plane_state =
+            to_nv_drm_plane_state(state);
+        drm_property_blob_put(nv_drm_plane_state->hdr_output_metadata);
+    }
 #endif
 }
 
@@ -906,7 +908,7 @@ static int nv_drm_crtc_atomic_check(struct drm_crtc *crtc,
 
         req_config->flags.displaysChanged = NV_TRUE;
 
-        nv_drm_for_each_connector_in_state(crtc_state->state,
+        nv_drm_for_each_new_connector_in_state(crtc_state->state,
                                            connector, connector_state, j) {
             if (connector_state->crtc != crtc) {
                 continue;

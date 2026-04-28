@@ -80,6 +80,7 @@ NV_CONFTEST_FUNCTION_COMPILE_TESTS += drm_rotation_available
 NV_CONFTEST_FUNCTION_COMPILE_TESTS += drm_vma_offset_exact_lookup_locked
 NV_CONFTEST_FUNCTION_COMPILE_TESTS += drm_gem_object_put_unlocked
 NV_CONFTEST_FUNCTION_COMPILE_TESTS += nvhost_dma_fence_unpack
+NV_CONFTEST_FUNCTION_COMPILE_TESTS += vm_flags_set
 
 NV_CONFTEST_TYPE_COMPILE_TESTS += drm_bus_present
 NV_CONFTEST_TYPE_COMPILE_TESTS += drm_bus_has_bus_type
@@ -132,7 +133,6 @@ NV_CONFTEST_TYPE_COMPILE_TESTS += drm_file_get_master
 NV_CONFTEST_TYPE_COMPILE_TESTS += drm_modeset_lock_all_end
 NV_CONFTEST_TYPE_COMPILE_TESTS += drm_connector_lookup
 NV_CONFTEST_TYPE_COMPILE_TESTS += drm_connector_put
-NV_CONFTEST_TYPE_COMPILE_TESTS += vm_area_struct_has_const_vm_flags
 NV_CONFTEST_TYPE_COMPILE_TESTS += drm_driver_has_dumb_destroy
 NV_CONFTEST_TYPE_COMPILE_TESTS += drm_unlocked_ioctl_flag_present
 NV_CONFTEST_TYPE_COMPILE_TESTS += drm_output_poll_changed

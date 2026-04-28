@@ -9833,6 +9833,13 @@ uvm_prot_t uvm_va_block_page_compute_highest_permission(uvm_va_block_t *va_block
     uvm_processor_mask_t resident_processors;
     NvU32 resident_processors_count;
 
+    // TODO: Bug 5841902
+    // There are several calls to uvm_va_block_is_hmm() which need to be removed
+    if (uvm_va_block_is_hmm(va_block))
+        return uvm_hmm_compute_mapping_prot(va_block,
+                                            processor_id,
+                                            page_index);
+
     if (uvm_processor_mask_test(block_get_uvm_lite_gpus(va_block), processor_id))
         return UVM_PROT_READ_WRITE_ATOMIC;
 

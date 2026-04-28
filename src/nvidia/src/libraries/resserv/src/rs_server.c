@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: Copyright (c) 2015-2021 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
+ * SPDX-FileCopyrightText: Copyright (c) 2015-2026 NVIDIA CORPORATION & AFFILIATES. All rights reserved.
  * SPDX-License-Identifier: MIT
  *
  * Permission is hereby granted, free of charge, to any person obtaining a
@@ -22,6 +22,7 @@
  */
 
 #define NVOC_RS_SERVER_H_PRIVATE_ACCESS_ALLOWED
+
 #include "nvlog_inc.h"
 #include "resserv/resserv.h"
 #include "resserv/rs_server.h"
@@ -1416,7 +1417,10 @@ serverCopyResource
 
     status = clientGetResourceRef(pClientSrc, pParams->hResourceSrc, &pResourceRefSrc);
     if (status != NV_OK)
+    {
+        NV_PRINTF(LEVEL_NOTICE, "Failed to find handle 0x%x under client 0x%x\n", pParams->hResourceSrc, pParams->hClientSrc);
         goto done;
+    }
 
     if (pResourceRefSrc->bInvalidated)
     {
@@ -1439,7 +1443,7 @@ serverCopyResource
 
     status = serverUpdateLockFlagsForCopy(pServer, pParams);
     if (status != NV_OK)
-        return status;
+        goto done;
 
     status = serverResLock_Prologue(pServer, LOCK_ACCESS_WRITE, pParams->pLockInfo, &releaseFlags);
     if (status != NV_OK)

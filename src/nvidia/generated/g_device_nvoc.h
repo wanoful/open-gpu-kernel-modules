@@ -87,14 +87,12 @@ struct Device {
     NV_STATUS (*__deviceCtrlCmdBifAspmFeatureSupported__)(struct Device *, NV0080_CTRL_BIF_SET_ASPM_FEATURE_PARAMS *);
     NV_STATUS (*__deviceCtrlCmdBifAspmCyaUpdate__)(struct Device *, NV0080_CTRL_BIF_ASPM_CYA_UPDATE_PARAMS *);
     NV_STATUS (*__deviceCtrlCmdBifGetPciePowerControlMask__)(struct Device *, NV0080_CTRL_CMD_BIF_GET_PCIE_POWER_CONTROL_MASK_PARAMS *);
-    NV_STATUS (*__deviceCtrlCmdDmaGetPteInfo__)(struct Device *, NV0080_CTRL_DMA_GET_PTE_INFO_PARAMS *);
     NV_STATUS (*__deviceCtrlCmdDmaUpdatePde2__)(struct Device *, NV0080_CTRL_DMA_UPDATE_PDE_2_PARAMS *);
     NV_STATUS (*__deviceCtrlCmdDmaSetPageDirectory__)(struct Device *, NV0080_CTRL_DMA_SET_PAGE_DIRECTORY_PARAMS *);
     NV_STATUS (*__deviceCtrlCmdDmaUnsetPageDirectory__)(struct Device *, NV0080_CTRL_DMA_UNSET_PAGE_DIRECTORY_PARAMS *);
     NV_STATUS (*__deviceCtrlCmdDmaFlush__)(struct Device *, NV0080_CTRL_DMA_FLUSH_PARAMS *);
     NV_STATUS (*__deviceCtrlCmdDmaAdvSchedGetVaCaps__)(struct Device *, NV0080_CTRL_DMA_ADV_SCHED_GET_VA_CAPS_PARAMS *);
     NV_STATUS (*__deviceCtrlCmdDmaGetPdeInfo__)(struct Device *, NV0080_CTRL_DMA_GET_PDE_INFO_PARAMS *);
-    NV_STATUS (*__deviceCtrlCmdDmaSetPteInfo__)(struct Device *, NV0080_CTRL_DMA_SET_PTE_INFO_PARAMS *);
     NV_STATUS (*__deviceCtrlCmdDmaInvalidateTLB__)(struct Device *, NV0080_CTRL_DMA_INVALIDATE_TLB_PARAMS *);
     NV_STATUS (*__deviceCtrlCmdDmaGetCaps__)(struct Device *, NV0080_CTRL_DMA_GET_CAPS_PARAMS *);
     NV_STATUS (*__deviceCtrlCmdDmaSetVASpaceSize__)(struct Device *, NV0080_CTRL_DMA_SET_VA_SPACE_SIZE_PARAMS *);
@@ -221,14 +219,12 @@ NV_STATUS __nvoc_objCreate_Device(Device**, Dynamic*, NvU32, struct CALL_CONTEXT
 #define deviceCtrlCmdBifAspmFeatureSupported(pDevice, pBifAspmParams) deviceCtrlCmdBifAspmFeatureSupported_DISPATCH(pDevice, pBifAspmParams)
 #define deviceCtrlCmdBifAspmCyaUpdate(pDevice, pBifAspmCyaParams) deviceCtrlCmdBifAspmCyaUpdate_DISPATCH(pDevice, pBifAspmCyaParams)
 #define deviceCtrlCmdBifGetPciePowerControlMask(pDevice, pBifPciePowerControlParams) deviceCtrlCmdBifGetPciePowerControlMask_DISPATCH(pDevice, pBifPciePowerControlParams)
-#define deviceCtrlCmdDmaGetPteInfo(pDevice, pParams) deviceCtrlCmdDmaGetPteInfo_DISPATCH(pDevice, pParams)
 #define deviceCtrlCmdDmaUpdatePde2(pDevice, pParams) deviceCtrlCmdDmaUpdatePde2_DISPATCH(pDevice, pParams)
 #define deviceCtrlCmdDmaSetPageDirectory(pDevice, pParams) deviceCtrlCmdDmaSetPageDirectory_DISPATCH(pDevice, pParams)
 #define deviceCtrlCmdDmaUnsetPageDirectory(pDevice, pParams) deviceCtrlCmdDmaUnsetPageDirectory_DISPATCH(pDevice, pParams)
 #define deviceCtrlCmdDmaFlush(pDevice, flushParams) deviceCtrlCmdDmaFlush_DISPATCH(pDevice, flushParams)
 #define deviceCtrlCmdDmaAdvSchedGetVaCaps(pDevice, pParams) deviceCtrlCmdDmaAdvSchedGetVaCaps_DISPATCH(pDevice, pParams)
 #define deviceCtrlCmdDmaGetPdeInfo(pDevice, pParams) deviceCtrlCmdDmaGetPdeInfo_DISPATCH(pDevice, pParams)
-#define deviceCtrlCmdDmaSetPteInfo(pDevice, pParams) deviceCtrlCmdDmaSetPteInfo_DISPATCH(pDevice, pParams)
 #define deviceCtrlCmdDmaInvalidateTLB(pDevice, pParams) deviceCtrlCmdDmaInvalidateTLB_DISPATCH(pDevice, pParams)
 #define deviceCtrlCmdDmaGetCaps(pDevice, pDmaCapsParams) deviceCtrlCmdDmaGetCaps_DISPATCH(pDevice, pDmaCapsParams)
 #define deviceCtrlCmdDmaSetVASpaceSize(pDevice, pParams) deviceCtrlCmdDmaSetVASpaceSize_DISPATCH(pDevice, pParams)
@@ -336,12 +332,6 @@ static inline NV_STATUS deviceCtrlCmdBifGetPciePowerControlMask_DISPATCH(struct 
     return pDevice->__deviceCtrlCmdBifGetPciePowerControlMask__(pDevice, pBifPciePowerControlParams);
 }
 
-NV_STATUS deviceCtrlCmdDmaGetPteInfo_IMPL(struct Device *pDevice, NV0080_CTRL_DMA_GET_PTE_INFO_PARAMS *pParams);
-
-static inline NV_STATUS deviceCtrlCmdDmaGetPteInfo_DISPATCH(struct Device *pDevice, NV0080_CTRL_DMA_GET_PTE_INFO_PARAMS *pParams) {
-    return pDevice->__deviceCtrlCmdDmaGetPteInfo__(pDevice, pParams);
-}
-
 NV_STATUS deviceCtrlCmdDmaUpdatePde2_IMPL(struct Device *pDevice, NV0080_CTRL_DMA_UPDATE_PDE_2_PARAMS *pParams);
 
 static inline NV_STATUS deviceCtrlCmdDmaUpdatePde2_DISPATCH(struct Device *pDevice, NV0080_CTRL_DMA_UPDATE_PDE_2_PARAMS *pParams) {
@@ -376,12 +366,6 @@ NV_STATUS deviceCtrlCmdDmaGetPdeInfo_IMPL(struct Device *pDevice, NV0080_CTRL_DM
 
 static inline NV_STATUS deviceCtrlCmdDmaGetPdeInfo_DISPATCH(struct Device *pDevice, NV0080_CTRL_DMA_GET_PDE_INFO_PARAMS *pParams) {
     return pDevice->__deviceCtrlCmdDmaGetPdeInfo__(pDevice, pParams);
-}
-
-NV_STATUS deviceCtrlCmdDmaSetPteInfo_IMPL(struct Device *pDevice, NV0080_CTRL_DMA_SET_PTE_INFO_PARAMS *pParams);
-
-static inline NV_STATUS deviceCtrlCmdDmaSetPteInfo_DISPATCH(struct Device *pDevice, NV0080_CTRL_DMA_SET_PTE_INFO_PARAMS *pParams) {
-    return pDevice->__deviceCtrlCmdDmaSetPteInfo__(pDevice, pParams);
 }
 
 NV_STATUS deviceCtrlCmdDmaInvalidateTLB_IMPL(struct Device *pDevice, NV0080_CTRL_DMA_INVALIDATE_TLB_PARAMS *pParams);

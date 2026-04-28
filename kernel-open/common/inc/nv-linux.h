@@ -1730,6 +1730,27 @@ static inline void nv_nvlfp_put_sp(nv_linux_file_private_t *nvlfp, nvidia_entry_
 #define NV_ATOMIC_DEC(data)             atomic_dec(&(data))
 #define NV_ATOMIC_DEC_AND_TEST(data)    atomic_dec_and_test(&(data))
 
+#if defined(smp_store_release)
+    #define nv_smp_store_release(p, v)          smp_store_release(p, v);
+#else
+    #define nv_smp_store_release(p, v)          \
+    do {                                        \
+            smp_mb();                           \
+            ACCESS_ONCE(*p) = (v);              \
+    } while (0)
+#endif
+
+#if defined(smp_load_acquire)
+    #define nv_smp_load_acquire(p)      smp_load_acquire(p)
+#else
+    #define nv_smp_load_acquire(p)              \
+    ({                                          \
+    typeof(*p) ___p1 = ACCESS_ONCE(*p);         \
+    smp_mb();                                   \
+    ___p1;                                      \
+    })
+#endif
+
 static inline struct kmem_cache *nv_kmem_cache_create(const char *name, unsigned int size,
                                                       unsigned int align)
 {

@@ -3474,6 +3474,11 @@ static void devmem_page_free(struct page *page)
                                  &pmm->root_chunks.va_block_lazy_free_q_item);
 }
 
+static void devmem_folio_free(struct folio *folio)
+{
+    devmem_page_free(&folio->page);
+}
+
 // This is called by HMM when the CPU faults on a ZONE_DEVICE private entry.
 static vm_fault_t devmem_fault(struct vm_fault *vmf)
 {
@@ -3492,7 +3497,11 @@ static vm_fault_t devmem_fault_entry(struct vm_fault *vmf)
 
 static const struct dev_pagemap_ops uvm_pmm_devmem_ops =
 {
+#if defined(NV_PAGEMAP_OPS_HAS_FOLIO_FREE)
+    .folio_free = devmem_folio_free,
+#else
     .page_free = devmem_page_free,
+#endif
     .migrate_to_ram = devmem_fault_entry,
 };
 

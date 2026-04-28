@@ -246,40 +246,6 @@ dmaFreeMap_IMPL
 }
 
 //
-// deviceCtrlCmdDmaGetPteInfo_IMPL
-//
-// Lock Requirements:
-//      Assert that API lock and GPUs lock held on entry
-//
-NV_STATUS
-deviceCtrlCmdDmaGetPteInfo_IMPL
-(
-    Device *pDevice,
-    NV0080_CTRL_DMA_GET_PTE_INFO_PARAMS *pParams
-)
-{
-    OBJGPU         *pGpu = GPU_RES_GET_GPU(pDevice);
-    OBJVASPACE     *pVAS = NULL;
-    NV_STATUS       status = NV_OK;
-    CALL_CONTEXT   *pCallContext = resservGetTlsCallContext();
-    RmCtrlParams   *pRmCtrlParams = pCallContext->pControlParams->pLegacyParams;
-
-    LOCK_ASSERT_AND_RETURN(rmapiLockIsOwner() && rmGpuLockIsOwner());
-
-    NV_CHECK_OK_OR_RETURN(LEVEL_WARNING,
-                          vaspaceGetByHandleOrDeviceDefault(RES_GET_CLIENT(pDevice), pRmCtrlParams->hObject,
-                                                            pParams->hVASpace, &pVAS));
-
-    status = vaspaceGetPteInfo(pVAS, pGpu, pParams, NULL);
-    if (status != NV_OK)
-    {
-        NV_PRINTF(LEVEL_ERROR, "vaspaceGetPteInfo failed\n");
-    }
-
-    return status;
-}
-
-//
 // deviceCtrlCmdDmaUpdatePde2_IMPL
 //
 // Lock Requirements:
@@ -586,39 +552,6 @@ deviceCtrlCmdDmaUnsetPageDirectory_IMPL
                           pRmCtrlParams->pParams,
                           pRmCtrlParams->paramsSize,
                           status);
-    }
-
-    return status;
-}
-
-//
-// deviceCtrlCmdDmaSetPteInfo_IMPL
-//
-// Lock Requirements:
-//      Assert that API lock and GPUs lock held on entry
-//
-NV_STATUS
-deviceCtrlCmdDmaSetPteInfo_IMPL
-(
-    Device *pDevice,
-    NV0080_CTRL_DMA_SET_PTE_INFO_PARAMS *pParams
-)
-{
-    OBJGPU     *pGpu    = GPU_RES_GET_GPU(pDevice);
-    OBJVASPACE *pVAS    = NULL;
-    NV_STATUS   status  = NV_OK;
-
-    LOCK_ASSERT_AND_RETURN(rmapiLockIsOwner() && rmGpuLockIsOwner());
-
-    NV_CHECK_OK_OR_RETURN(LEVEL_WARNING,
-                          vaspaceGetByHandleOrDeviceDefault(RES_GET_CLIENT(pDevice), RES_GET_HANDLE(pDevice),
-                                                            pParams->hVASpace, &pVAS));
-
-    status = vaspaceSetPteInfo(pVAS, pGpu, pParams);
-    if (status != NV_OK)
-    {
-        NV_PRINTF(LEVEL_ERROR, "vaspaceGetPteInfo failed\n");
-        NV_ASSERT(0);
     }
 
     return status;

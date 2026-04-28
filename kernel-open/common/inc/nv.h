@@ -305,7 +305,7 @@ typedef struct nv_alloc_mapping_context_s {
     NvU64  access_size;
     NvU64  remap_prot_extra;
     NvU32  prot;
-    NvBool valid;
+    NvU32  valid;
     NvU32  caching;
 } nv_alloc_mapping_context_t;
 

@@ -447,6 +447,7 @@ compile_test() {
             #endif
             #if defined(NV_ASM_PAGE_H_PRESENT)
             #include <asm/page.h>
+            #include <linux/percpu.h>
             #endif
             #include <asm/set_memory.h>
             #else
@@ -472,6 +473,7 @@ compile_test() {
             #endif
             #if defined(NV_ASM_PAGE_H_PRESENT)
             #include <asm/page.h>
+            #include <linux/percpu.h>
             #endif
             #include <asm/set_memory.h>
             #else
@@ -532,6 +534,7 @@ compile_test() {
             #endif
             #if defined(NV_ASM_PAGE_H_PRESENT)
             #include <asm/page.h>
+            #include <linux/percpu.h>
             #endif
             #include <asm/set_memory.h>
             #else
@@ -562,6 +565,7 @@ compile_test() {
             #endif
             #if defined(NV_ASM_PAGE_H_PRESENT)
             #include <asm/page.h>
+            #include <linux/percpu.h>
             #endif
             #include <asm/set_memory.h>
             #else
@@ -1223,6 +1227,63 @@ compile_test() {
             }"
 
             compile_check_conftest "$CODE" "NV_VFIO_DEVICE_OPS_HAS_DETACH_IOAS" "" "types"
+        ;;
+
+        vfio_device_ops_has_get_region_info_caps)
+            #
+            # Determine if 'struct vfio_device_ops' has 'get_region_info_caps' 
+            # callback.
+            #
+            # Added by commit 775f726a742a ("vfio: Add get_region_info_caps op") 
+            # in v6.19
+            #
+            CODE="
+            #include <linux/pci.h>
+            #include <linux/vfio.h>
+            int conftest_vfio_device_ops_has_get_region_info_caps(void) {
+                return offsetof(struct vfio_device_ops, get_region_info_caps);
+            }"
+
+            compile_check_conftest "$CODE" "NV_VFIO_DEVICE_OPS_HAS_GET_REGION_INFO_CAPS" "" "types"
+        ;;
+
+        irq_bypass_producer_has_token)
+            #
+            # Determine if 'struct irq_bypass_producer' has 'token' field
+            #
+            # Added by commit 2b521d86ee80 ("irqbypass: Take ownership of 
+            # producer/consumer token tracking") in v6.17
+            #
+            CODE="
+            #include <linux/irqbypass.h>
+            int conftest_irq_bypass_producer_has_token(void) {
+                return offsetof(struct irq_bypass_producer, token);
+            }"
+
+            compile_check_conftest "$CODE" "NV_IRQ_BYPASS_PRODUCER_HAS_TOKEN" "" "types"
+        ;;
+
+        irq_bypass_register_producer_has_eventfd_and_irq_args)
+            #
+            # Determine if irq_bypass_register_producer() function has 
+            # additional 'eventfd' and 'irq' arguments.
+            #
+            # Added by commits 2b521d86ee80 ("irqbypass: Take ownership of
+            # producer/consumer token tracking") and 23b54381cee2 
+            # ("irqbypass: Require producers to pass in Linux IRQ number 
+            # during registration") in v6.17
+            #
+            CODE="
+            #include <linux/irqbypass.h>
+            #include <linux/eventfd.h>
+            void conftest_irq_bypass_register_producer_has_eventfd_and_irq_args(void) {
+                struct irq_bypass_producer *prod = NULL;
+                struct eventfd_ctx *eventfd = NULL;
+                int irq = 0;
+                irq_bypass_register_producer(prod, eventfd, irq);
+            }"
+
+            compile_check_conftest "$CODE" "NV_IRQ_BYPASS_REGISTER_PRODUCER_HAS_EVENTFD_AND_IRQ_ARGS" "" "types"
         ;;
 
         pci_irq_vector_helpers)
@@ -3179,24 +3240,6 @@ compile_test() {
             fi
         ;;
 
-        enable_apicv)
-            #
-            # Determine if enable_apicv boolean is exported by kernel.
-            #
-            # Added by commit fdf513e37a3bd ("KVM: x86: Use common 'enable_apicv'
-            # variable for both APICv and AVIC")
-            #
-            CODE="
-            $CONFTEST_PREAMBLE
-            #include <asm/kvm_host.h>
-
-            bool is_enable_apicv_present() {
-                return enable_apicv;
-            }"
-
-            compile_check_conftest "$CODE" "NV_ENABLE_APICV_PRESENT" "" "types"
-        ;;
-
         pci_driver_has_driver_managed_dma)
             #
             # Determine if "struct pci_driver" has .driver_managed_dma member.
@@ -3674,6 +3717,35 @@ compile_test() {
                 return get_backlight_device_by_name();
             }"
             compile_check_conftest "$CODE" "NV_GET_BACKLIGHT_DEVICE_BY_NAME_PRESENT" "" "functions"
+        ;;
+
+        dma_map_ops_has_map_phys)
+            #
+            # Determine if .map_phys exists in struct dma_map_ops.
+            #
+            # Commit 14cb413af00c ("dma-mapping: remove unused mapping resource callbacks")
+            # removed .map_resource operation and replaced it with .map_phys.
+            #
+            echo "$CONFTEST_PREAMBLE
+            #include <linux/dma-map-ops.h>
+            int conftest_dma_map_ops_has_map_phys(void) {
+                return offsetof(struct dma_map_ops, map_phys);
+            }
+            int conftest_dma_map_ops_has_unmap_phys(void) {
+                return offsetof(struct dma_map_ops, unmap_phys);
+            }" > conftest$$.c
+
+            $CC $CFLAGS -c conftest$$.c > /dev/null 2>&1
+            rm -f conftest$$.c
+
+            if [ -f conftest$$.o ]; then
+                echo "#define NV_DMA_MAP_OPS_HAS_MAP_PHYS" | append_conftest "types"
+                rm -f conftest$$.o
+                return
+            else
+                echo "#undef NV_DMA_MAP_OPS_HAS_MAP_PHYS" | append_conftest "types"
+                return
+            fi
         ;;
 
         timer_setup)
@@ -6299,6 +6371,53 @@ compile_test() {
             compile_check_conftest "$CODE" "NV_HANDLE_MM_FAULT_HAS_PT_REGS_ARG" "" "types"
         ;;
 
+        zone_device_page_init_has_pgmap_and_order_args)
+            #
+            # Determine if the zone_device_page_init() has two additional
+            # arguments
+            #
+            # This change was introduced by d245f9b4ab80
+            # ("mm/zone_device: support large zone device private folios")
+            #
+            # It was further amended in 9387a71ec62c
+            # (mm/zone_device: reinitialize large zone device private folios)
+            #
+            # both commits are in linux-next, expected in v6.19.
+            #
+            CODE="
+            #include <linux/memremap.h>
+
+            void init_page(void) {
+                struct page *page;
+                struct dev_pagemap *pgmap;
+
+                zone_device_page_init(page, pgmap, 0);
+            }"
+
+            compile_check_conftest "$CODE" "NV_ZONE_DEVICE_PAGE_INIT_HAS_PGMAP_AND_ORDER_ARGS" "" "types"
+        ;;
+
+        dev_pagemap_ops_has_folio_free)
+            #
+            # Determine if the zone device now uses a folio_free() as the callback
+            # function instead of page_free()
+            #
+            # This change was introduced by 3a5a06554566
+            # (mm/zone_device: rename page_free callback to folio_free)
+            #
+            # in linux-next, expected in v6.19.
+            #
+            CODE="
+            #include <linux/memremap.h>
+            void test_folio_free(struct folio *folio) {
+            }
+            void set_folio_free_ops(void) {
+                struct dev_pagemap_ops ops;
+                ops.folio_free = test_folio_free;
+            }"
+            compile_check_conftest "$CODE" "NV_PAGEMAP_OPS_HAS_FOLIO_FREE" "" "types"
+        ;;
+   
         pci_rebar_get_possible_sizes)
             #
             # Determine if the pci_rebar_get_possible_sizes() function is present.
@@ -6313,6 +6432,27 @@ compile_test() {
             }"
 
             compile_check_conftest "$CODE" "NV_PCI_REBAR_GET_POSSIBLE_SIZES_PRESENT" "" "functions"
+        ;;
+
+        pci_resize_resource_has_exclude_bars_arg)
+            #
+            # Determine if pci_resize_resource() has exclude_bars argument.
+            #
+            # exclude_bars argument was added to pci_resize_resource by commit
+            # 337b1b566db0 (11/14/2025) ("PCI: Fix restoring BARs on BAR resize rollback path")
+            # in linux-next.
+            #
+            CODE="
+            #include <linux/pci.h>
+
+            typeof(pci_resize_resource) conftest_pci_resize_resource_has_exclude_bars_arg;
+            int __must_check conftest_pci_resize_resource_has_exclude_bars_arg(struct pci_dev *dev,
+                                                                               int i, int size,
+                                                                               int exclude_bars) {
+                return 0;
+            }"
+
+            compile_check_conftest "$CODE" "NV_PCI_RESIZE_RESOURCE_HAS_EXCLUDE_BARS_ARG" "" "types"
         ;;
 
         wait_for_random_bytes)
@@ -6374,23 +6514,39 @@ compile_test() {
             compile_check_conftest "$CODE" "NV_IOMMU_SVA_BIND_DEVICE_HAS_DRVDATA_ARG" "" "types"
         ;;
 
-        vm_area_struct_has_const_vm_flags)
+        vm_flags_set)
             #
-            # Determine if the 'vm_area_struct' structure has
-            # const 'vm_flags'.
+            # Determine if the vm_flags_set() function is present. The
+            # presence of this function indicates that the vm_flags_clear()
+            # function is also present.
             #
-            # A union of '__vm_flags' and 'const vm_flags' was added 
-            # by commit bc292ab00f6c ("mm: introduce vma->vm_flags
-            # wrapper functions") in mm-stable branch (2023-02-09)
-            # of the akpm/mm maintainer tree.
+            # The functions vm_flags_set()/ vm_flags_clear() were added by
+            # commit bc292ab00f6c ("mm: introduce vma->vm_flags wrapper
+            # functions") in v6.3-rc1 (2023-02-09).
             #
             CODE="
-            #include <linux/mm_types.h>
-            int conftest_vm_area_struct_has_const_vm_flags(void) {
-                return offsetof(struct vm_area_struct, __vm_flags);
+            #include <linux/mm.h>
+            void conftest_vm_flags_set(void) {
+                vm_flags_set();
             }"
 
-            compile_check_conftest "$CODE" "NV_VM_AREA_STRUCT_HAS_CONST_VM_FLAGS" "" "types"
+            compile_check_conftest "$CODE" "NV_VM_FLAGS_SET_PRESENT" "" "functions"
+        ;;
+
+        vma_flags_set_word)
+            #
+            # Determine if the vma_flags_set_word() function is present.
+            #
+            # Added by commit c3f7c506e8f1 ("mm: introduce VMA flags bitmap type")
+            # in v6.19-rc1.
+            #
+            CODE="
+            #include <linux/mm.h>
+            void conftest_vma_flags_set_word(void) {
+                vma_flags_set_word();
+            }"
+
+            compile_check_conftest "$CODE" "NV_VMA_FLAGS_SET_WORD_PRESENT" "" "functions"
         ;;
 
         drm_driver_has_dumb_destroy)
@@ -6795,6 +6951,26 @@ compile_test() {
             };"
 
             compile_check_conftest "$CODE" "NV_DRM_CONNECTOR_HELPER_FUNCS_MODE_VALID_HAS_CONST_MODE_ARG" "" "types"
+        ;;
+
+        is_vma_write_locked_has_mm_lock_seq_arg)
+            #
+            # Determine if __is_vma_write_locked() takes only a single
+            # 'struct vm_area_struct *' argument.
+            #
+            # Commit 22f7639f2f03 ("mm/vma: improve and document
+            # __is_vma_write_locked()") removed the 'unsigned int *mm_lock_seq'
+            # parameter in v7.0-rc1.
+            #
+            CODE="
+            #include <linux/mm.h>
+            #include <linux/mmap_lock.h>
+            int conftest_is_vma_write_locked_has_mm_lock_seq_arg(struct vm_area_struct *vma) {
+                unsigned int mm_lock_seq;
+                return __is_vma_write_locked(vma, &mm_lock_seq);
+            }"
+
+            compile_check_conftest "$CODE" "NV_IS_VMA_WRITE_LOCKED_HAS_MM_LOCK_SEQ_ARG" "" "types"
         ;;
 
         # When adding a new conftest entry, please use the correct format for
