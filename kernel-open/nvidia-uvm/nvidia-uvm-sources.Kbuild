@@ -15,6 +15,7 @@ NVIDIA_UVM_SOURCES += nvidia-uvm/uvm_tools.c
 NVIDIA_UVM_SOURCES += nvidia-uvm/uvm_global.c
 NVIDIA_UVM_SOURCES += nvidia-uvm/uvm_gpu.c
 NVIDIA_UVM_SOURCES += nvidia-uvm/uvm_gpu_isr.c
+NVIDIA_UVM_SOURCES += nvidia-uvm/uvm_polaris.c
 NVIDIA_UVM_SOURCES += nvidia-uvm/uvm_procfs.c
 NVIDIA_UVM_SOURCES += nvidia-uvm/uvm_va_space.c
 NVIDIA_UVM_SOURCES += nvidia-uvm/uvm_va_space_mm.c

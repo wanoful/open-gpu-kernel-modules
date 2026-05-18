@@ -38,6 +38,7 @@
 #include "uvm_perf_thrashing.h"
 #include "uvm_gpu_non_replayable_faults.h"
 #include "uvm_ats_faults.h"
+#include "uvm_polaris.h"
 #include "uvm_test.h"
 
 // The documentation at the beginning of uvm_gpu_non_replayable_faults.c
@@ -2936,6 +2937,25 @@ void uvm_parent_gpu_service_replayable_faults(uvm_parent_gpu_t *parent_gpu)
             continue;
         else if (status != NV_OK)
             break;
+
+        {
+            NvU32 polaris_handled_faults = 0;
+
+            status = uvm_polaris_filter_replayable_faults(parent_gpu, batch_context, &polaris_handled_faults);
+            if (status != NV_OK) {
+                cancel_fault_batch(parent_gpu, batch_context, uvm_tools_status_to_fatal_fault_reason(status));
+                break;
+            }
+
+            if (polaris_handled_faults > 0 && batch_context->num_coalesced_faults == 0) {
+                status = push_replay_on_parent_gpu(parent_gpu, UVM_FAULT_REPLAY_TYPE_START, batch_context);
+                if (status != NV_OK)
+                    break;
+                ++num_replays;
+                ++num_batches;
+                continue;
+            }
+        }
 
         status = service_fault_batch(parent_gpu, FAULT_SERVICE_MODE_REGULAR, batch_context);
 
